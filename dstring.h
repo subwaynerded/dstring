@@ -21,10 +21,10 @@ typedef struct{
 #define snorSize(snor) ((uint64_t)((overskrift*)snor - 1)->size)
 #define snorInfo(snor) printf("%lldB :: %lldB\n", snorLen(snor), snorSize(snor))
 
-#define to128(n) ((n + 127) & (~127))
+#define to32(n) ((n + 31) & (~31))
 
 snor newSnor(const uint64_t length){
-   uint64_t size = to128(length);
+   uint64_t size = to32(length);
    overskrift* data = malloc(sizeof(overskrift) + sizeof(char) * size);
    if(!data) allocFail();
    data->size = size;
@@ -33,9 +33,9 @@ snor newSnor(const uint64_t length){
 }
 
 snor toSnor(const char* kilde){
-   overskrift* data = malloc(sizeof(overskrift) + sizeof(char) * 128);
+   overskrift* data = malloc(sizeof(overskrift) + sizeof(char) * 32);
    if(!data) allocFail();
-   data->size = 128;
+   data->size = 32;
    char* skrift = (char*)(data + 1);
    uint64_t index = 0;
    while(kilde[index] != '\0'){
@@ -75,14 +75,14 @@ snor snorSubsnor(const snor kilde, const uint64_t hoven, const uint64_t length){
    return result;
 }
 
-snor snorHovenSnor(const snor kilde, const uint64_t hale){
+snor snorHoven(const snor kilde, const uint64_t hale){
    if(hale > snorLen(kilde)) return NULL;
    snor result = newSnor(snorLen(kilde) - hale);
    dmemcpy(kilde, result, hale);
    return result;
 }
 
-snor snorHaleSnor(const snor kilde, const uint64_t hoven){
+snor snorHale(const snor kilde, const uint64_t hoven){
    if(hoven > snorLen(kilde)) return NULL;
    snor result = newSnor(snorLen(kilde) - hoven);
    dmemcpy(kilde + hoven, result, snorLen(kilde) - hoven);
@@ -113,10 +113,10 @@ uint32_t snorEvilFind(const snor kilde, char ka, uint64_t* result){
    return 0;
 }
 
-uint32_t snorIs(const snor snorA, const snor snorB){
-   if(snorLen(snorA) != snorLen(snorB)) return 0;
-   for(uint64_t i = 0; i < snorLen(snorA); i++){
-      if(snorA[i] != snorB[i]) return 0;
+uint32_t snorIs(const snor left, const snor right){
+   if(snorLen(left) != snorLen(right)) return 0;
+   for(uint64_t i = 0; i < snorLen(left); i++){
+      if(left[i] != right[i]) return 0;
    }
    return 1;
 }
